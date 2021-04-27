@@ -3,3 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - matplotlib =3.3
+  - pysam =0.15

@@ -210,7 +210,7 @@ Or visually by typying:
 
 Finally, we can execute everything in a simple and concise command:
 
-`snakemake`
+`snakemake --use-conda`
 
 
 ### BONUS: Generating a Snakemake report
