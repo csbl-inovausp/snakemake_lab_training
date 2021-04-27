@@ -1,7 +1,9 @@
-# snakemake tutorial
+# snakemake lab training tutorial
+
 Adapted from: https://snakemake.readthedocs.io/en/stable/tutorial/basics.html
 
 ## 1 Requirements:
+
 - Snakemake is more suitable for Linux or Mac Systems but it can be applied for Windows (https://snakemake.readthedocs.io/en/stable/tutorial/setup.html)
 - Conda >= 4.9.0 (https://docs.conda.io/en/latest/miniconda.html)
 
@@ -59,6 +61,23 @@ Execute the workflow:
 
 `snakemake --cores 1 mapped_reads/A.bam`
 
+It fails by first time because we dont have **bwa** and **samtools** installed in our environment. In high performace cluster systems (HPC), it can be preferable to use environment modules for deployment of optimized versions of certain standard tools. Snakemake allows to define environment modules per rule:
+
+rule bwa_map:
+  input:
+      "data/genome.fa",
+      "data/samples/A.fastq"
+  output:
+      "mapped_reads/A.bam"
+  conda:
+      "envs/bwa.yaml"    
+  shell:
+      "bwa mem {input} | samtools view -Sb - > {output}"
+
+Now, we can execute again but using conda environments declared inside our snakemake rule:
+
+`snakemake --cores 1 mapped_reads/A.bam --use-conda`
+
 ### Step 2: Generalizing the read mapping rule using WildCards
 
 Snakemake allows generalizing rules by using named wildcards (https://en.wikipedia.org/wiki/Wildcard_character). Simply replace the A in the second input file and in the output file with the wildcard {sample}, leading to:
@@ -70,6 +89,8 @@ Snakemake allows generalizing rules by using named wildcards (https://en.wikiped
             "data/samples/{sample}.fastq"
         output:
             "mapped_reads/{sample}.bam"
+        conda:
+            "envs/bwa.yaml"
         shell:
             "bwa mem {input} | samtools view -Sb - > {output}"
 
@@ -91,6 +112,8 @@ For later steps, we need the read alignments in the BAM files to be sorted. This
           "mapped_reads/{sample}.bam"
       output:
           "sorted_reads/{sample}.bam"
+      conda:
+          "envs/bwa.yaml"
       shell:
           "samtools sort -T sorted_reads/{wildcards.sample} "
           "-O bam {input} > {output}"          
@@ -113,6 +136,8 @@ Next, we need to use samtools again to index the sorted read alignments so that 
           "sorted_reads/{sample}.bam"
       output:
           "sorted_reads/{sample}.bam.bai"
+      conda:
+          "envs/bwa.yaml"
       shell:
           "samtools index {input}"
 
@@ -137,6 +162,8 @@ we can add the following rule to our Snakefile:
             bai=expand("sorted_reads/{sample}.bam.bai", sample=SAMPLES)
         output:
             "calls/all.vcf"
+        conda:
+            "envs/bwa.yaml"
         shell:
             "samtools mpileup -g -f {input.fa} {input.bam} | "
             "bcftools call -mv - > {output}"
@@ -155,13 +182,10 @@ Usually, a workflow not only consists of invoking various tools, but also contai
             "calls/all.vcf"
         output:
             "plots/quals.svg"
+        conda:
+            "envs/matplots.yaml"
         script:
             "scripts/plot-quals.py"
-
-
-
-
-
 
 
 
@@ -171,9 +195,9 @@ So far, we always executed the workflow by specifying a target file at the comma
 
 Here,  we add a rule at the top of the workflow:
 
-rule all:
-    input:
-        "plots/quals.svg"
+    rule all:
+        input:
+            "plots/quals.svg"
 
 
 
@@ -190,7 +214,7 @@ Or visually by typying:
 
 Finally, we can execute everything in a simple and concise command:
 
-`snakemake`
+`snakemake --use-conda`
 
 
 ### BONUS: Generating a Snakemake report
@@ -202,6 +226,8 @@ From Snakemake 5.1 on, it is possible to automatically generate detailed self-co
             "calls/all.vcf"
         output:
             report("plots/quals.svg", caption="report/quals.rst", category="Variant Calling")
+        conda:
+            "envs/matplots.yaml"
         script:
             "scripts/plot-quals.py"
 
@@ -228,6 +254,8 @@ In total, the resulting workflow should look like this:
             "data/samples/{sample}.fastq"
         output:
             "mapped_reads/{sample}.bam"
+        conda:
+            "envs/bwa.yaml"
         shell:
             "bwa mem {input} | samtools view -Sb - > {output}"
 
@@ -237,6 +265,8 @@ In total, the resulting workflow should look like this:
             "mapped_reads/{sample}.bam"
         output:
             "sorted_reads/{sample}.bam"
+        conda:
+            "envs/bwa.yaml"
         shell:
             "samtools sort -T sorted_reads/{wildcards.sample} "
             "-O bam {input} > {output}"
@@ -247,6 +277,8 @@ In total, the resulting workflow should look like this:
             "sorted_reads/{sample}.bam"
         output:
             "sorted_reads/{sample}.bam.bai"
+        conda:
+            "envs/bwa.yaml"
         shell:
             "samtools index {input}"
 
@@ -258,6 +290,8 @@ In total, the resulting workflow should look like this:
             bai=expand("sorted_reads/{sample}.bam.bai", sample=SAMPLES)
         output:
             "calls/all.vcf"
+        conda:
+            "envs/bwa.yaml"
         shell:
             "samtools mpileup -g -f {input.fa} {input.bam} | "
             "bcftools call -mv - > {output}"
@@ -268,5 +302,7 @@ In total, the resulting workflow should look like this:
             "calls/all.vcf"
         output:
             report("plots/quals.svg", caption="report/quals.rst", category="Variant Calling")
+        conda:
+            "envs/matplots.yaml"
         script:
             "scripts/plot-quals.py"
