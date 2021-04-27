@@ -1,0 +1,52 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	bcftools_call
+	2	bwa_map
+	1	plot_quals
+	2	samtools_index
+	2	samtools_sort
+	9
+
+[Tue Apr 27 09:27:08 2021]
+rule bwa_map:
+    input: data/genome.fa, data/samples/A.fastq
+    output: mapped_reads/A.bam
+    jobid: 7
+    wildcards: sample=A
+
+
+[Tue Apr 27 09:27:08 2021]
+rule bwa_map:
+    input: data/genome.fa, data/samples/B.fastq
+    output: mapped_reads/B.bam
+    jobid: 8
+    wildcards: sample=B
+
+[Tue Apr 27 09:27:08 2021]
+Error in rule bwa_map:
+[Tue Apr 27 09:27:08 2021]
+    jobid: 8
+Error in rule bwa_map:
+    output: mapped_reads/B.bam
+    jobid: 7
+    shell:
+        bwa mem data/genome.fa data/samples/B.fastq | samtools view -Sb - > mapped_reads/B.bam
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    output: mapped_reads/A.bam
+
+    shell:
+        bwa mem data/genome.fa data/samples/A.fastq | samtools view -Sb - > mapped_reads/A.bam
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+Removing output files of failed job bwa_map since they might be corrupted:
+mapped_reads/B.bam
+
+Removing output files of failed job bwa_map since they might be corrupted:
+mapped_reads/A.bam
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/icaromsc/Documentos/snakemake_lab_training/.snakemake/log/2021-04-27T092708.084837.snakemake.log

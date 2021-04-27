@@ -159,6 +159,42 @@ Usually, a workflow not only consists of invoking various tools, but also contai
             "scripts/plot-quals.py"
 
 
+
+
+
+
+
+
+### Step 7: Adding a target rule
+
+So far, we always executed the workflow by specifying a target file at the command line. Apart from filenames, Snakemake also accepts rule names as targets if the requested rule does not have wildcards. Hence, it is possible to write target rules collecting particular subsets of the desired results or all results. Moreover, if no target is given at the command line, Snakemake will define the first rule of the Snakefile as the target. Hence, it is best practice to have a rule all at the top of the workflow which has all typically desired target files as input files.
+
+Here,  we add a rule at the top of the workflow:
+
+rule all:
+    input:
+        "plots/quals.svg"
+
+
+
+
+From now, we can see the execution plan:
+
+`snakemake -n`
+
+Or visually by typying:
+
+`snakemake --dag | dot -Tsvg | display `
+
+![Example](./dags/final_dag.svg)
+
+Finally, we can execute everything in a simple and concise command:
+
+`snakemake`
+
+
+### BONUS: Generating a Snakemake report
+
 From Snakemake 5.1 on, it is possible to automatically generate detailed self-contained HTML reports that encompass runtime statistics, provenance information, workflow topology and results. Let's update our previous rule by adding a simple report with the generated figure:
 
     rule plot_quals:
@@ -169,13 +205,14 @@ From Snakemake 5.1 on, it is possible to automatically generate detailed self-co
         script:
             "scripts/plot-quals.py"
 
-Finally, to create the report simply run:
+Finally, to create a snakemake report simply run:
 
 `snakemake --report report.html`
 
 
-### Summary
-In total, the resulting workflow looks like this:
+## Summary
+
+In total, the resulting workflow should look like this:
 
     SAMPLES = ["A", "B"]
 
