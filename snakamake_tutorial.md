@@ -136,6 +136,16 @@ Usually, a workflow not only consists of invoking various tools, but also contai
             "scripts/plot-quals.py"
 
 
+From Snakemake 5.1 on, it is possible to automatically generate detailed self-contained HTML reports that encompass runtime statistics, provenance information, workflow topology and results. Let's update our previous rule by adding a simple report with the generated figure:
+
+    rule plot_quals:
+        input:
+            "calls/all.vcf"
+        output:
+            report("plots/quals.svg", caption="report/quals.rst", category="Variant Calling")
+        script:
+            "scripts/plot-quals.py"
+
 
 ### Summary
 In total, the resulting workflow looks like this:
