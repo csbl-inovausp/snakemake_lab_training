@@ -122,6 +122,10 @@ we can add the following rule to our Snakefile:
             "samtools mpileup -g -f {input.fa} {input.bam} | "
             "bcftools call -mv - > {output}"
 
+Here, we use only the simple case of expand. We first let Snakemake know which samples we want to consider.Remember that Snakemake works backwards from requested output, and not from available input. Thus, it does not automatically infer all possible output from, for example, the fastq files in the data folder. Also remember that Snakefiles are in principle Python code enhanced by some declarative statements to define workflows. Hence, we can define the list of samples ad-hoc in plain Python at the top of the Snakefile:
+
+`SAMPLES = ["A", "B"]`
+
 
 ### Step 6: Using custom scripts
 
@@ -145,6 +149,10 @@ From Snakemake 5.1 on, it is possible to automatically generate detailed self-co
             report("plots/quals.svg", caption="report/quals.rst", category="Variant Calling")
         script:
             "scripts/plot-quals.py"
+
+Finally, to create the report simply run:
+
+`snakemake --report report.html`
 
 
 ### Summary
@@ -203,6 +211,6 @@ In total, the resulting workflow looks like this:
         input:
             "calls/all.vcf"
         output:
-            "plots/quals.svg"
+            report("plots/quals.svg", caption="report/quals.rst", category="Variant Calling")
         script:
             "scripts/plot-quals.py"
