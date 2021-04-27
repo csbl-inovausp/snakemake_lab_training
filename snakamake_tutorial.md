@@ -47,6 +47,14 @@ Show the execution plan:
 
 `snakemake -np mapped_reads/A.bam`
 
+Show the execution plan visually of the resulting directed acyclic graph (DAG) of jobs:
+
+`snakemake --dag mapped_reads/A.bam | dot -Tsvg | display`
+
+it should looks like this:
+
+![Example](./dags/dag_bwa.svg)
+
 Execute the workflow:
 
 `snakemake --cores 1 mapped_reads/A.bam`
@@ -65,7 +73,15 @@ Snakemake allows generalizing rules by using named wildcards (https://en.wikiped
         shell:
             "bwa mem {input} | samtools view -Sb - > {output}"
 
-![Example](./dag.svg)
+
+
+Show the execution plan visually of the resulting directed acyclic graph (DAG) of jobs:
+
+`snakemake --dag mapped_reads/A.bam | dot -Tsvg | display`
+
+![Example](./dags/dag_bwa_generalized.svg)
+
+Question: What changed in the resulting DAG?
 
 ### Step 3: Sorting read alignments
 For later steps, we need the read alignments in the BAM files to be sorted. This can be achieved with the samtools sort command. We add the following rule beneath the bwa_map rule:
@@ -104,8 +120,9 @@ Next, we need to use samtools again to index the sorted read alignments so that 
 
 Having three steps already, it is a good time to take a closer look at the resulting directed acyclic graph (DAG) of jobs. By executing:
 
-`snakemake --dag sorted_reads/{A,B}.bam.bai | dot -Tsvg > dag.svg`
 `snakemake --dag sorted_reads/{A,B}.bam.bai | dot -Tsvg | display`
+
+![Example](./dags/sorted_reads.svg)
 
 ### Step 5: Calling genomic variants
 
