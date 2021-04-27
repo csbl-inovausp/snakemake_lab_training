@@ -52,11 +52,12 @@ Execute the workflow:
 
 Snakemake allows generalizing rules by using named wildcards (https://en.wikipedia.org/wiki/Wildcard_character). Simply replace the A in the second input file and in the output file with the wildcard {sample}, leading to:
 
-`rule bwa_map:
-    input:
-        "data/genome.fa",
-        "data/samples/{sample}.fastq"
-    output:
-        "mapped_reads/{sample}.bam"
-    shell:
-        "bwa mem {input} | samtools view -Sb - > {output}"`
+
+    rule bwa_map:
+        input:
+            "data/genome.fa",
+            "data/samples/{sample}.fastq"
+        output:
+            "mapped_reads/{sample}.bam"
+        shell:
+            "bwa mem {input} | samtools view -Sb - > {output}"
